@@ -1,8 +1,12 @@
 package com.example.evgsa.androidgraphics.logic;
 
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.example.evgsa.androidgraphics.MainActivity;
+import com.example.evgsa.androidgraphics.content.DrawFigures;
+import com.example.evgsa.androidgraphics.utils.RecordBaseHelper;
 import com.example.evgsa.androidgraphics.utils.Sounds;
 
 import java.util.Random;
@@ -87,7 +91,7 @@ public class GameBase
                     }
                 }
 
-                //Making the snake to appear at the other side of game table as if it reaches the edge
+                //Making the snake to appear on the opposite side of game table as if it reaches the edge
                 if(newX < 0)
                     newX += gameTableBoundsX;
                 if(newY < 0)
@@ -97,7 +101,7 @@ public class GameBase
                 if(newY >= gameTableBoundsY)
                     newY %= gameTableBoundsY;
 
-                //If snakes its itself than the timer stops and the game restarts
+                //If snakes its itself, than the timer stops and the game restarts
                 if(cells[newX][newY].isCellActivated)
                 {
                     this.cancel();
@@ -140,6 +144,15 @@ public class GameBase
      * */
     private static void lose()
     {
+        if((snakeLength - 5) > Integer.parseInt(DrawFigures.record))
+        {
+            SQLiteDatabase db = MainActivity.helper.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(RecordBaseHelper.KEY_RECORD, snakeLength - 5);
+            db.insert(RecordBaseHelper.TABLE_NAME, null, values);
+            DrawFigures.updateRecord();
+        }
+
         rand = new Random();
         hasSnakeEaten = false;
 
@@ -180,3 +193,54 @@ public class GameBase
         Sounds.playSound(Sounds.eatSoundId); //Playing sound of eating
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

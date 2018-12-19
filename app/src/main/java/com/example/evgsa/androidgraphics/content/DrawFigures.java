@@ -1,10 +1,16 @@
 package com.example.evgsa.androidgraphics.content;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.icu.text.AlphabeticIndex;
+import android.util.Log;
 
+import com.example.evgsa.androidgraphics.MainActivity;
 import com.example.evgsa.androidgraphics.logic.GameBase;
+import com.example.evgsa.androidgraphics.utils.RecordBaseHelper;
 
 /**
  * This class draws all the game table on screen
@@ -20,6 +26,10 @@ public class DrawFigures
 
     public static boolean isOneDrawn = false;
 
+    private static SQLiteDatabase db;
+    private static Cursor cursor;
+    public static String record;
+
     /**
      * @param canvas Canvas everything will be drawn on
      * */
@@ -30,6 +40,11 @@ public class DrawFigures
         {
             width = canvas.getWidth();
             height = canvas.getHeight();
+
+            db = MainActivity.helper.getReadableDatabase();
+            cursor = db.query(RecordBaseHelper.TABLE_NAME, null, null, null, null, null, null);
+            if(cursor.moveToLast())
+                record = cursor.getString(cursor.getColumnIndex(RecordBaseHelper.KEY_RECORD));
 
             gameTableBoundsX = canvas.getWidth() / 40; //One snake's pixel will be 40px*40px on any device
             gameTableBoundsY = canvas.getHeight() / 40;
@@ -61,6 +76,19 @@ public class DrawFigures
         paint.setARGB(255, 0, 0, 0);
         paint.setTextSize(50);
         canvas.drawText( "Счёт: " + String.valueOf(GameBase.snakeLength - 5), 60, 60, paint);
+
+        //Writes the record below the current score
+        if(cursor.moveToLast())
+        {
+            record = cursor.getString(cursor.getColumnIndex(RecordBaseHelper.KEY_RECORD));
+            canvas.drawText("Рекорд: " + record, 60, 120, paint);
+        }
+    }
+
+    public static void updateRecord()
+    {
+        db = MainActivity.helper.getReadableDatabase();
+        cursor = db.query(RecordBaseHelper.TABLE_NAME, null, null, null, null, null, null);
     }
 }
 

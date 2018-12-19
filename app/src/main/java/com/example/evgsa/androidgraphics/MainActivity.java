@@ -6,17 +6,19 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.example.evgsa.androidgraphics.logic.GameBase;
+import com.example.evgsa.androidgraphics.utils.RecordBaseHelper;
 import com.example.evgsa.androidgraphics.utils.ScreenTouchListener;
 import com.example.evgsa.androidgraphics.utils.Sounds;
 
 /**
  * The main class.
- * Sets window's settings, sounds and restarts game when needed
+ * Sets window's settings, sounds and database, also restarts game when needed
  */
 
 public class MainActivity extends AppCompatActivity
 {
     public static MainActivity instance;
+    public static RecordBaseHelper helper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -34,6 +36,7 @@ public class MainActivity extends AppCompatActivity
 
         instance = this;
         Sounds sounds = new Sounds();
+        helper = new RecordBaseHelper();
 
         DrawView draw = new DrawView(this);
         draw.setOnTouchListener(new ScreenTouchListener());

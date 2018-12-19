@@ -4,6 +4,8 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.example.evgsa.androidgraphics.MainActivity;
+
 public class RecordBaseHelper extends SQLiteOpenHelper
 {
     public static final String DATABASE_NAME = "records_base";
@@ -14,9 +16,9 @@ public class RecordBaseHelper extends SQLiteOpenHelper
     public static final String KEY_RECORD = "record";
     public static final String KEY_TIMESTAMP = "timestamp";
 
-    public RecordBaseHelper(Context context)
+    public RecordBaseHelper()
     {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        super(MainActivity.instance, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     @Override
