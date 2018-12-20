@@ -79,16 +79,17 @@ public class DrawFigures
 
         //Writes the record below the current score
         if(cursor.moveToLast())
-        {
-            record = cursor.getString(cursor.getColumnIndex(RecordBaseHelper.KEY_RECORD));
             canvas.drawText("Рекорд: " + record, 60, 120, paint);
-        }
     }
 
+    /**
+     * The method updates cursor so it'll read from an updated base and then updates record variable
+     * */
     public static void updateRecord()
     {
-        db = MainActivity.helper.getReadableDatabase();
         cursor = db.query(RecordBaseHelper.TABLE_NAME, null, null, null, null, null, null);
+        cursor.moveToLast();
+        record = cursor.getString(cursor.getColumnIndex(RecordBaseHelper.KEY_RECORD));
     }
 }
 

@@ -2,7 +2,6 @@ package com.example.evgsa.androidgraphics.logic;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 import com.example.evgsa.androidgraphics.MainActivity;
 import com.example.evgsa.androidgraphics.content.DrawFigures;
@@ -144,15 +143,6 @@ public class GameBase
      * */
     private static void lose()
     {
-        if((snakeLength - 5) > Integer.parseInt(DrawFigures.record))
-        {
-            SQLiteDatabase db = MainActivity.helper.getWritableDatabase();
-            ContentValues values = new ContentValues();
-            values.put(RecordBaseHelper.KEY_RECORD, snakeLength - 5);
-            db.insert(RecordBaseHelper.TABLE_NAME, null, values);
-            DrawFigures.updateRecord();
-        }
-
         rand = new Random();
         hasSnakeEaten = false;
 
@@ -188,6 +178,17 @@ public class GameBase
         {
             foodX = rand.nextInt(gameTableBoundsX);
             foodY = rand.nextInt(gameTableBoundsY);
+        }
+
+        //If snake's length is the new record, then the program updates
+        //database, and then calls DrawFigures update method
+        if((snakeLength - 5) > Integer.parseInt(DrawFigures.record))
+        {
+            SQLiteDatabase db = MainActivity.helper.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(RecordBaseHelper.KEY_RECORD, snakeLength - 5);
+            db.insert(RecordBaseHelper.TABLE_NAME, null, values);
+            DrawFigures.updateRecord();
         }
 
         Sounds.playSound(Sounds.eatSoundId); //Playing sound of eating
