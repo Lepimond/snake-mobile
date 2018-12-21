@@ -2,13 +2,19 @@ package com.example.evgsa.androidgraphics.content;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Picture;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.icu.text.AlphabeticIndex;
 import android.util.Log;
 
 import com.example.evgsa.androidgraphics.MainActivity;
+import com.example.evgsa.androidgraphics.R;
 import com.example.evgsa.androidgraphics.logic.GameBase;
 import com.example.evgsa.androidgraphics.utils.RecordBaseHelper;
 
@@ -25,6 +31,7 @@ public class DrawFigures
     public static int height;
 
     public static boolean isOneDrawn = false;
+    private static boolean gamePaused = false;
 
     private static SQLiteDatabase db;
     private static Cursor cursor;
@@ -80,6 +87,24 @@ public class DrawFigures
         //Writes the record below the current score
         if(cursor.moveToLast())
             canvas.drawText("Рекорд: " + record, 60, 120, paint);
+
+        //Draws the pause button in a right-top corner of the screen
+        Bitmap pauseButton;
+        if(!gamePaused) //button's appearance depends on gamePaused
+            pauseButton = BitmapFactory.decodeResource(MainActivity.resources, R.drawable.pause_button);
+        else
+            pauseButton = BitmapFactory.decodeResource(MainActivity.resources, R.drawable.unpause_button);
+        Rect rect = new Rect();
+        rect.set(canvas.getWidth() - 150, 50, canvas.getWidth() - 50, 150);
+        canvas.drawBitmap(pauseButton, null, rect, paint);
+    }
+
+    /**
+     * The method reverse gamePaused variable, which will affect pause button's appearance
+     * */
+    public static void setPauseButton()
+    {
+        gamePaused = !gamePaused;
     }
 
     /**

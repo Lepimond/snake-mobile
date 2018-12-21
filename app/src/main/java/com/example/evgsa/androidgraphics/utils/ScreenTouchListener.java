@@ -8,7 +8,7 @@ import com.example.evgsa.androidgraphics.logic.GameBase;
 
 /**
  * ScreenTouchListener processes touches on the screen and
- * changes the snake's direction according to touch's coordinates
+ * changes the snake's direction according to touch's coordinates, or pauses the game
  * */
 
 public class ScreenTouchListener implements View.OnTouchListener
@@ -24,7 +24,12 @@ public class ScreenTouchListener implements View.OnTouchListener
             int centerX = DrawFigures.width / 2;
             int centerY = DrawFigures.height / 2;
 
-            if(GameBase.direction == 0 || GameBase.direction == 2)
+            if((x > (DrawFigures.width - 150)) && (x < (DrawFigures.width - 50)) && (y > 50) && (y < 150)) //checking if a player presses on pause button
+            {
+                GameBase.pause();
+                DrawFigures.setPauseButton();
+            }
+            else if(GameBase.direction == 0 || GameBase.direction == 2)
             {
                 if(x < centerX)
                     GameBase.direction = 3;

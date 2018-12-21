@@ -1,6 +1,7 @@
 package com.example.evgsa.androidgraphics;
 
 import android.content.pm.ActivityInfo;
+import android.content.res.Resources;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -19,6 +20,7 @@ public class MainActivity extends AppCompatActivity
 {
     public static MainActivity instance;
     public static RecordBaseHelper helper;
+    public static Resources resources;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -37,6 +39,7 @@ public class MainActivity extends AppCompatActivity
         instance = this;
         Sounds sounds = new Sounds();
         helper = new RecordBaseHelper();
+        resources = getResources();
 
         DrawView draw = new DrawView(this);
         draw.setOnTouchListener(new ScreenTouchListener());

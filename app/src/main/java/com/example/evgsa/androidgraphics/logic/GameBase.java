@@ -35,6 +35,10 @@ public class GameBase
     public static int foodX = rand.nextInt(gameTableBoundsX);
     public static int foodY = rand.nextInt(gameTableBoundsY);
 
+    private static Timer timer;
+    private static TimerTask timerTask;
+    private static boolean taskPaused = false;
+
     public GameBase()
     {
         snakeLogic();
@@ -55,86 +59,96 @@ public class GameBase
             cells[3][3 + i].activate(i); //activating the cells in the corner of screen (making the first snake)
         }
 
-        Timer timer = new Timer();
-        TimerTask timerTask = new TimerTask()
+        timer = new Timer();
+        timerTask = new TimerTask()
         {
             @Override
             public void run()
             {
-                boolean taskCancelled = false;
-
-                //newX amd newY are coordinates of the next cell to be lit up
-                int newX = latestX;
-                int newY = latestY;
-                switch (direction) //What cell will be lit up next depends on snake's direction
+                if(!taskPaused) //All the 'run' block works only if the game isn't paused (if the game's paused, then it should stop making any progress)
                 {
-                    case (0):
-                    {
-                        newY--;
-                        break;
-                    }
-                    case (1):
-                    {
-                        newX++;
-                        break;
-                    }
-                    case (2):
-                    {
-                        newY++;
-                        break;
-                    }
-                    case (3):
-                    {
-                        newX--;
-                        break;
-                    }
-                }
+                    boolean taskCancelled = false;
 
-                //Making the snake to appear on the opposite side of game table as if it reaches the edge
-                if(newX < 0)
-                    newX += gameTableBoundsX;
-                if(newY < 0)
-                    newY += gameTableBoundsY;
-                if(newX >= gameTableBoundsX)
-                    newX %= gameTableBoundsX;
-                if(newY >= gameTableBoundsY)
-                    newY %= gameTableBoundsY;
-
-                //If snakes its itself, than the timer stops and the game restarts
-                if(cells[newX][newY].isCellActivated)
-                {
-                    this.cancel();
-                    taskCancelled = true;
-                    lose();
-                }
-
-                if(!taskCancelled) //This block doesn't do anything if the player has lost
-                {
-                    if(newX == foodX && newY == foodY) //If snake meets food, it eats the food
+                    //newX amd newY are coordinates of the next cell to be lit up
+                    int newX = latestX;
+                    int newY = latestY;
+                    switch (direction) //What cell will be lit up next depends on snake's direction
                     {
-                        eatFood();
-                    }
-                    cells[newX][newY].activate();
-                    latestX = newX;
-                    latestY = newY;
-
-                    for (int i = 0; i < gameTableBoundsX; i++)
-                    {
-                        for (int j = 0; j < gameTableBoundsY; j++)
+                        case (0):
                         {
-                            cells[i][j].update(hasSnakeEaten);
+                            newY--;
+                            break;
+                        }
+                        case (1):
+                        {
+                            newX++;
+                            break;
+                        }
+                        case (2):
+                        {
+                            newY++;
+                            break;
+                        }
+                        case (3):
+                        {
+                            newX--;
+                            break;
                         }
                     }
 
-                    hasSnakeEaten = false;
-                }
+                    //Making the snake to appear on the opposite side of game table as if it reaches the edge
+                    if(newX < 0)
+                        newX += gameTableBoundsX;
+                    if(newY < 0)
+                        newY += gameTableBoundsY;
+                    if(newX >= gameTableBoundsX)
+                        newX %= gameTableBoundsX;
+                    if(newY >= gameTableBoundsY)
+                        newY %= gameTableBoundsY;
 
+                    //If snakes its itself, than the timer stops and the game restarts
+                    if(cells[newX][newY].isCellActivated)
+                    {
+                        this.cancel();
+                        taskCancelled = true;
+                        lose();
+                    }
+
+                    if(!taskCancelled) //This block doesn't do anything if the player has lost
+                    {
+                        if(newX == foodX && newY == foodY) //If snake meets food, it eats the food
+                        {
+                            eatFood();
+                        }
+                        cells[newX][newY].activate();
+                        latestX = newX;
+                        latestY = newY;
+
+                        for (int i = 0; i < gameTableBoundsX; i++)
+                        {
+                            for (int j = 0; j < gameTableBoundsY; j++)
+                            {
+                                cells[i][j].update(hasSnakeEaten);
+                            }
+                        }
+
+                        hasSnakeEaten = false;
+                    }
+                }
             }
         };
 
 
 
-        timer.schedule(timerTask, 1000 / 20, 1000 / 20); //Period variable entirely controls all the game speed
+        timer.schedule(timerTask, 1000 / 20, 1000 / 20); //Period argument entirely controls all the game speed
+    }
+
+    /**
+     * The method reverses taskPaused condition
+     * */
+    public static void pause()
+    {
+        taskPaused = !taskPaused;
     }
 
     /**

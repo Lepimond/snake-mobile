@@ -1,6 +1,5 @@
 package com.example.evgsa.androidgraphics.utils;
 
-import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -27,14 +26,14 @@ public class RecordBaseHelper extends SQLiteOpenHelper
         db.execSQL("create table " + TABLE_NAME + "(" +
                                                    KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                                                    KEY_RECORD + " integer," +
-                                                   KEY_TIMESTAMP  + " TIMEDATE DEFAULT CURRENT_TIMESTAMP)");
+                                                   KEY_TIMESTAMP  + " TIMEDATE DEFAULT CURRENT_TIMESTAMP)"); //the base has got three columns: id, record itself, and the time it was achieved
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
     {
-        db.execSQL("drop table if exists " + TABLE_NAME);
-        onCreate(db);
+        db.execSQL("drop table if exists " + TABLE_NAME); //deleting existing table
+        onCreate(db); //creating a new table
     }
 }
 
