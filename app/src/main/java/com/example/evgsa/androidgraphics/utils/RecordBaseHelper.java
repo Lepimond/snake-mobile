@@ -5,6 +5,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.evgsa.androidgraphics.MainActivity;
 
+/**
+ * This class helps to create the base of player's records that will be saved in gadget's memory
+ * */
+
 public class RecordBaseHelper extends SQLiteOpenHelper
 {
     public static final String DATABASE_NAME = "records_base";

@@ -6,7 +6,7 @@ package com.example.evgsa.androidgraphics.logic;
 
 public class Cell
 {
-    private int timeLeft;
+    private int timeLeft; //variable that decreases with any tick. When it reaches 0, the cell is no more lit up
     public boolean isCellActivated = false;
 
     /**

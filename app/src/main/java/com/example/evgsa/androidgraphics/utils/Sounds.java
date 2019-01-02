@@ -19,7 +19,7 @@ public class Sounds
     {
         pool = new SoundPool(2, AudioManager.STREAM_MUSIC, 0);
         eatSoundId = pool.load(MainActivity.instance, R.raw.eat, 1);
-        deathSoundId = pool.load(MainActivity.instance, R.raw.death, 1);
+        deathSoundId = pool.load(MainActivity.instance, R.raw.death_new, 1);
     }
 
     public static void playSound(int soundId)

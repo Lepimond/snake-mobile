@@ -39,6 +39,9 @@ public class GameBase
     private static TimerTask timerTask;
     private static boolean taskPaused = false;
 
+    /**
+     * All the game background logic starts working from the moment when GameBase object is created
+     * */
     public GameBase()
     {
         snakeLogic();

@@ -7,16 +7,18 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Picture;
 import android.graphics.Rect;
-import android.graphics.RectF;
-import android.icu.text.AlphabeticIndex;
-import android.util.Log;
+import android.graphics.drawable.BitmapDrawable;
 
 import com.example.evgsa.androidgraphics.MainActivity;
 import com.example.evgsa.androidgraphics.R;
 import com.example.evgsa.androidgraphics.logic.GameBase;
+import com.example.evgsa.androidgraphics.logic.Settings;
+import com.example.evgsa.androidgraphics.utils.AnimationTimer;
 import com.example.evgsa.androidgraphics.utils.RecordBaseHelper;
+
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This class draws all the game table on screen
@@ -25,6 +27,7 @@ import com.example.evgsa.androidgraphics.utils.RecordBaseHelper;
 public class DrawFigures
 {
     private static Paint paint;
+    private static int snakeColor;
     public static int gameTableBoundsX;
     public static int gameTableBoundsY;
     public static int width;
@@ -36,6 +39,16 @@ public class DrawFigures
     private static SQLiteDatabase db;
     private static Cursor cursor;
     public static String record;
+
+    private static Bitmap gameUnpausedButton;
+    private static Bitmap gamePausedButton;
+    private static Bitmap settingsButton;
+    private static Bitmap settingsArrow;
+    public static Rect pauseButtonRect, settingsRect, settingsArrowRect;
+
+    public static int settingsShown = 0; //0 means settings are not shown, 1 is that they are scrolling out, 2 is scrolling back in, 3 is shown entirely
+    private static Canvas settingsCanvas;
+    private static Settings settingsWindow;
 
     /**
      * @param canvas Canvas everything will be drawn on
@@ -57,14 +70,31 @@ public class DrawFigures
             gameTableBoundsY = canvas.getHeight() / 40;
             GameBase gameBase = new GameBase(); //Starts the game
 
+            paint = new Paint();
+            snakeColor = 255 << 24;
+
+            gameUnpausedButton = BitmapFactory.decodeResource(MainActivity.resources, R.drawable.pause_button);
+            gamePausedButton = BitmapFactory.decodeResource(MainActivity.resources, R.drawable.unpause_button);
+            pauseButtonRect = new Rect();
+            pauseButtonRect.set(canvas.getWidth() - 150, 50, canvas.getWidth() - 50, 150);
+
+            settingsButton = BitmapFactory.decodeResource(MainActivity.resources, R.drawable.settings);
+            settingsButton = settingsButton.copy(Bitmap.Config.ARGB_8888, true); //converting bitmap into a mutable one
+
+            settingsArrow = BitmapFactory.decodeResource(MainActivity.resources, R.drawable.settings_arrow);
+            settingsArrowRect = new Rect();
+            settingsArrowRect.set(canvas.getWidth() / 2 - 100, 1, canvas.getWidth() / 2 + 100, 101); //the rect is turned upside down
+
+            settingsCanvas = new Canvas(settingsButton);
+            settingsWindow = new Settings(settingsCanvas, paint);
+
             isOneDrawn = true;
         }
 
         //Draws all the background (light-blue color)
         canvas.drawARGB(255, 188, 251, 245);
 
-        paint = new Paint();
-        paint.setARGB(255, 0, 0, 0);
+        paint.setColor(snakeColor);
 
         //Goes through all the screen and draws black squares for all activated cells (draws the snake)
         for (int i = 0; i < gameTableBoundsX; i++)
@@ -91,12 +121,46 @@ public class DrawFigures
         //Draws the pause button in a right-top corner of the screen
         Bitmap pauseButton;
         if(!gamePaused) //button's appearance depends on gamePaused
-            pauseButton = BitmapFactory.decodeResource(MainActivity.resources, R.drawable.pause_button);
+            pauseButton = gameUnpausedButton;
         else
-            pauseButton = BitmapFactory.decodeResource(MainActivity.resources, R.drawable.unpause_button);
-        Rect rect = new Rect();
-        rect.set(canvas.getWidth() - 150, 50, canvas.getWidth() - 50, 150);
-        canvas.drawBitmap(pauseButton, null, rect, paint);
+            pauseButton = gamePausedButton;
+        canvas.drawBitmap(pauseButton, null, pauseButtonRect, paint);
+
+        //Draw the settings arrow that scrolls the settings in and out
+        canvas.drawBitmap(settingsArrow, null, settingsArrowRect, paint);
+
+        //Draws the settings in case if they are not hided
+        if(settingsShown != 0)
+        {
+            settingsWindow.drawLine();
+            canvas.drawBitmap(settingsButton, null, settingsRect, paint);
+        }
+    }
+
+    /**
+     * The method scrolls settings out by moving settings and an arrow downwards
+     * */
+    public static void scrollSettingsOut()
+    {
+        settingsRect = new Rect(); //creating a new rect (it didn't need to exist before because it was unseen)
+        settingsRect.set(width / 2 - 300, -101, width / 2 + 300, 0); //sets the rect's starting coordinates
+        AnimationTimer settingsTimer = new AnimationTimer(settingsRect); //moving settings
+        settingsTimer.moveY(100, 300);
+        AnimationTimer settingsArrowTimer = new AnimationTimer(settingsArrowRect); //moving settings' arrow
+        settingsArrowTimer.moveY(100, 300);
+        settingsShown = 1; //settings are scrolling out
+    }
+
+    /**
+     * The method scrolls settings in by moving settings and an arrow upwards
+     * */
+    public static void scrollSettingsIn()
+    {
+        AnimationTimer settingsTimer = new AnimationTimer(settingsRect); //moving settings
+        settingsTimer.moveY(-100, 300);
+        AnimationTimer settingsArrowTimer = new AnimationTimer(settingsArrowRect); //moving settings' arrow
+        settingsArrowTimer.moveY(-100, 300);
+        settingsShown = 2; //settings are scrolling in
     }
 
     /**
@@ -115,6 +179,19 @@ public class DrawFigures
         cursor = db.query(RecordBaseHelper.TABLE_NAME, null, null, null, null, null, null);
         cursor.moveToLast();
         record = cursor.getString(cursor.getColumnIndex(RecordBaseHelper.KEY_RECORD));
+    }
+
+    /**
+     * Changes snake's color by changing snakeColor variable, which is used by draw method
+     * @param a Color's alpha
+     * @param r Color's red
+     * @param g Color's green
+     * @param b Color's blue
+     * */
+    public static void changeColorTo(int a, int r, int g, int b)
+    {
+        paint.setARGB(a, r, g, b);
+        snakeColor = (a << 24) + (r << 16) + (g << 8) + b;
     }
 }
 
